@@ -1,0 +1,4 @@
+Integration Rules:
+∫ x^n dx = (x^(n+1)) / (n+1) + C
+∫ sin(x) dx = -cos(x) + C
+∫ e^x dx = e^x + C

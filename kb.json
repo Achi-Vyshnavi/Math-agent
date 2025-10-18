@@ -1,0 +1,30 @@
+[
+  {
+    "question": "Solve x^2 + 5x + 6 = 0",
+    "answer": "Step1: Factor (x+2)(x+3)=0; Step2: x=-2, x=-3"
+  },
+  {
+    "question": "Integrate x^2 dx",
+    "answer": "Step1: Increase power by 1 \u2192 x^3; Step2: Divide by new power \u2192 x^3/3 + C"
+  },
+  {
+    "question": "Solve x^2   5x   6 = 0",
+    "answer": "In this video we'll follow a clear set of steps for writing the factors for the equation x^2 - 5x + 6 = 0. We'll first write the skeleton ..."
+  },
+  {
+    "question": "Solve 2x + 7 = 19",
+    "answer": "Step 1. Move all terms not containing x x to the right side of the equation. Tap for more steps... Step 1.1. Subtract 7 7 from both sides of the equation."
+  },
+  {
+    "question": "solve 2x +4 =16",
+    "answer": "... 16 ... Step 1. Move all terms not containing x x to the right side of the equation. Tap for more steps... Step 1.1. Subtract 4 4 from both sides of the equation."
+  },
+  {
+    "question": "2x + 3=12",
+    "answer": "it's correct"
+  },
+  {
+    "question": "solve 2x+8=15",
+    "answer": "Simple and best practice solution for (2x-8)-15= equation. Check how easy it is, and learn it for the future. Our solution is simple, and easy to understand ..."
+  }
+]
