@@ -61,3 +61,5 @@ npm install
 Start the React app:
 npm start
 Frontend will run at http://localhost:3000.
+
+Note: Some answers rely on LLM or web search APIs. To see full step-by-step solutions, ensure the backend has access to the required models and API keys. Without them, the system may return placeholder messages.
