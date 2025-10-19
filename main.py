@@ -11,9 +11,6 @@ import re
 import logging
 import os
 
-# ----------------------------
-# Optional DSPy Feedback Agent (Bonus)
-# ----------------------------
 try:
     from dspy.agent import FeedbackAgent
     feedback_agent = FeedbackAgent()
@@ -26,7 +23,7 @@ except ModuleNotFoundError:
 app = FastAPI(title="Full Assignment Math Agent")
 
 # ----------------------------
-# 1️⃣ Console KB
+#  Console KB
 # ----------------------------
 console_kb = [
     {"question": "Solve x^2 + 5x + 6 = 0",
@@ -37,13 +34,13 @@ console_kb = [
 kb_documents = [Document(text=f"Q: {item['question']}\nA: {item['answer']}") for item in console_kb]
 
 # ----------------------------
-# 2️⃣ Qdrant Vector Store
+#  Qdrant Vector Store
 # ----------------------------
 client = QdrantClient(":memory:")  # in-memory
 vector_store = QdrantVectorStore(client=client, collection_name="math_agent")
 
 # ----------------------------
-# 3️⃣ Embedding + LLM
+#  Embedding + LLM
 # ----------------------------
 embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
@@ -60,12 +57,12 @@ llm = HuggingFaceLLM(
         "low_cpu_mem_usage": True,
         "use_safetensors": False,
         "device_map": "auto",
-        "offload_folder": "./offload"  # <-- FIX
+        "offload_folder": "./offload"  
     }
 )
 
 # ----------------------------
-# 4️⃣ VectorStoreIndex
+#  VectorStoreIndex
 # ----------------------------
 index = VectorStoreIndex.from_documents(
     kb_documents,
@@ -75,14 +72,14 @@ index = VectorStoreIndex.from_documents(
 query_engine = index.as_query_engine(llm=llm)
 
 # ----------------------------
-# 5️⃣ Input Guardrail
+#  Input Guardrail
 # ----------------------------
 def is_math_question(question: str) -> bool:
     math_keywords = ["solve", "integrate", "derivative", "probability", "find", "equation", "calculate"]
     return any(k.lower() in question.lower() for k in math_keywords)
 
 # ----------------------------
-# 6️⃣ Output Guardrail
+# Output Guardrail
 # ----------------------------
 def validate_answer(answer: str) -> str:
     if answer and any(k in answer for k in ["Step", "=", "+", "-", "*", "/", "^"]):
@@ -90,10 +87,10 @@ def validate_answer(answer: str) -> str:
     return "Sorry, could not generate a valid math solution."
 
 # ----------------------------
-# 7️⃣ Serper Web Search
+#  Serper Web Search
 # ----------------------------
 def serper_search(query: str) -> str:
-    API_KEY = "ca58cb81f6d9676cde10d87468b4344b1b4006c1"  # Replace with actual key
+    API_KEY = "ca58cb81f6d9676cde10d87468b4344b1b4006c1"  # Serper API key
     url = "https://google.serper.dev/search"
     headers = {"X-API-KEY": API_KEY}
     data = {"q": f"{query} step by step solution math"}
@@ -109,7 +106,7 @@ def serper_search(query: str) -> str:
     return ""
 
 # ----------------------------
-# 8️⃣ MCP processing
+#  MCP processing
 # ----------------------------
 def mcp_process(snippet: str) -> str:
     cleaned = re.sub(r"[\n]+", "\n", snippet).strip()
@@ -117,7 +114,7 @@ def mcp_process(snippet: str) -> str:
     return "Context extracted from web: " + " ".join(math_lines)
 
 # ----------------------------
-# 9️⃣ Feedback Model (DSPy)
+#  Feedback Model (DSPy)
 # ----------------------------
 class FeedbackModel(BaseModel):
     question: str
@@ -125,14 +122,14 @@ class FeedbackModel(BaseModel):
     correct_answer: str
 
 # ----------------------------
-# 10️⃣ Root endpoint
+#  Root endpoint
 # ----------------------------
 @app.get("/")
 def root():
     return {"message": "Math Agent API running. Use /solve?question=... to get answers."}
 
 # ----------------------------
-# 11️⃣ Solve endpoint
+#  Solve endpoint
 # ----------------------------
 @app.get("/solve")
 def solve(question: str):
@@ -142,12 +139,12 @@ def solve(question: str):
     answer = ""
     snippet = ""
 
-    # 0️⃣ Console KB direct match
+    #  Console KB direct match
     for item in console_kb:
         if item["question"].strip().lower() == question.strip().lower():
             answer = item["answer"]
 
-    # 1️⃣ Vector KB
+    #  Vector KB
     if not answer:
         try:
             kb_response = query_engine.query(question)
@@ -158,7 +155,7 @@ def solve(question: str):
             logging.warning(f"Vector KB query failed: {e}")
             answer = ""
 
-    # 2️⃣ Web Search + MCP
+    # Web Search + MCP
     if not answer:
         try:
             snippet = serper_search(question)
@@ -171,7 +168,7 @@ def solve(question: str):
             logging.warning(f"Web Search + MCP + LLM failed: {e}")
             answer = ""
 
-    # 3️⃣ Final LLM fallback
+    #  Final LLM fallback
     if not answer:
         try:
             prompt = f"Solve this math problem step by step:\n{question}"
@@ -181,7 +178,6 @@ def solve(question: str):
             logging.warning(f"LLM final fallback failed: {e}")
             answer = "Sorry, could not generate a solution."
 
-    # ✅ Determine source
     if snippet:
         source = "Web"
     elif answer and any(item["question"].strip().lower() == question.strip().lower() for item in console_kb):
@@ -192,7 +188,7 @@ def solve(question: str):
     return {"answer": answer, "source": source}
 
 # ----------------------------
-# 12️⃣ Test Web + MCP Endpoint
+# Test Web + MCP Endpoint
 # ----------------------------
 @app.get("/test_web_mcp")
 def test_web_mcp(question: str):
@@ -214,7 +210,7 @@ def test_web_mcp(question: str):
     return {"answer": answer, "context": context, "snippet": snippet}
 
 # ----------------------------
-# 13️⃣ DSPy Human-in-the-loop Feedback (Bonus)
+# DSPy Human-in-the-loop Feedback (Bonus)
 # ----------------------------
 @app.post("/feedback")
 def feedback(feedback: FeedbackModel):
@@ -231,7 +227,7 @@ def feedback(feedback: FeedbackModel):
     return {"status": "feedback recorded via DSPy"}
 
 # ----------------------------
-# 14️⃣ JEE Bench Evaluation (Bonus)
+# JEE Bench Evaluation (Bonus)
 # ----------------------------
 @app.post("/jee_bench_eval")
 def jee_bench_eval(jee_questions: list):
@@ -254,6 +250,7 @@ def jee_bench_eval(jee_questions: list):
         "kb_hit_percentage": kb_hits / total * 100 if total > 0 else 0
     }
     return {"metrics": metrics, "results": results}
+
 
 
 
